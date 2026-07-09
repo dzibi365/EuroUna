@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Lista Sječenja Drveta</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -400,7 +401,7 @@
     <button class="btn btn-regen" onclick="calculate()">Regeneriraj</button>
     <button class="btn btn-clear" onclick="clearAll()">Obriši</button>
     <button class="btn btn-csv"   onclick="exportCSV()">Izvezi CSV</button>
-    <button class="btn btn-print" onclick="printPDF()">Štampaj / Izvezi PDF</button>
+    <button class="btn btn-print" onclick="generatePDF()">Preuzmi PDF</button>
   </div>
 
   <div id="output">
@@ -806,13 +807,145 @@
     URL.revokeObjectURL(url);
   }
 
-  /* ── Print / PDF ─────────────────────────────────────────────── */
+  /* ── PDF generation (jsPDF) ─────────────────────────────────────
+     Draws the PDF programmatically — identical output on every device.
+     Layout: A4 portrait, 28mm left/right margins, 20mm top/bottom.
+     Two-column table: rows 1-40 left, 41-80 right.
+  ─────────────────────────────────────────────────────────────── */
 
-  function printPDF() {
+  function generatePDF() {
     if (currentPieces.length === 0) {
-      alert('Nema podataka za štampanje. Molimo prvo izračunajte.'); return;
+      alert('Nema podataka. Molimo prvo izracunajte.'); return;
     }
-    window.print();
+
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+
+    // Page geometry
+    const ML       = 28;
+    const MT       = 20;
+    const contentW = 210 - ML * 2; // 154 mm
+    const halfW    = contentW / 2;  //  77 mm per side
+
+    // Column widths per side (must sum to halfW = 77)
+    const cRB  = 10;
+    const cDuz = 22;
+    const cFi  = 14;
+    const cM3  = halfW - cRB - cDuz - cFi; // 31 mm
+
+    const rowH    = 4.5;
+    const headerH = 6;
+
+    let y = MT;
+
+    // ── Header ──
+    const datum = document.getElementById('datum').value;
+    const vrsta = document.getElementById('vrstaDrveta').value;
+    const ruko  = document.getElementById('rukovodilac').value;
+
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(11);
+    doc.text('Euro Una d.o.o.', ML, y);             y += 5.5;
+    doc.text('DNEVNI LIST PROREZA OBLOVINE', ML, y); y += 5.5;
+    doc.text('Datum: ' + datum, ML, y);              y += 5;
+    doc.text('Vrsta drveta: ' + vrsta, ML, y);       y += 5;
+    if (ruko) { doc.text('Rukovodilac stroja: ' + ruko, ML, y); y += 5; }
+    y += 4;
+
+    // ── Table header ──
+    doc.setFontSize(9);
+    doc.setFont('helvetica', 'bold');
+    const headers = ['RB', 'Duzina', 'Ø', 'm3'];
+    const widths  = [cRB, cDuz, cFi, cM3];
+
+    [ML, ML + halfW].forEach(startX => {
+      let x = startX;
+      headers.forEach((lbl, i) => {
+        doc.rect(x, y, widths[i], headerH);
+        doc.text(lbl, x + widths[i] / 2, y + headerH * 0.65, { align: 'center' });
+        x += widths[i];
+      });
+    });
+
+    // Thick divider between the two column groups
+    doc.setLineWidth(0.6);
+    doc.line(ML + halfW, y, ML + halfW, y + headerH);
+    doc.setLineWidth(0.2);
+    y += headerH;
+
+    // ── Data rows ──
+    const leftPieces  = currentPieces.slice(0, 40);
+    const rightPieces = currentPieces.slice(40, 80);
+    let leftTotal = 0, rightTotal = 0;
+
+    for (let i = 0; i < 40; i++) {
+      const L = leftPieces[i]  || null;
+      const R = rightPieces[i] || null;
+      if (L) leftTotal  += L.volume;
+      if (R) rightTotal += R.volume;
+
+      // Left side
+      let x = ML;
+      doc.setFont('helvetica', 'bold');
+      doc.rect(x, y, cRB, rowH);
+      doc.text((i + 1) + '.', x + cRB / 2, y + rowH * 0.65, { align: 'center' });
+      x += cRB;
+
+      doc.setFont('helvetica', 'normal');
+      doc.rect(x, y, cDuz, rowH);
+      if (L) doc.text(fmtEU(L.length, 1), x + cDuz / 2, y + rowH * 0.65, { align: 'center' });
+      x += cDuz;
+
+      doc.rect(x, y, cFi, rowH);
+      if (L) doc.text(String(L.fi), x + cFi / 2, y + rowH * 0.65, { align: 'center' });
+      x += cFi;
+
+      doc.rect(x, y, cM3, rowH);
+      doc.text(L ? fmtEU(L.volume, 3) : '0,000', x + cM3 / 2, y + rowH * 0.65, { align: 'center' });
+
+      // Thick divider
+      doc.setLineWidth(0.6);
+      doc.line(ML + halfW, y, ML + halfW, y + rowH);
+      doc.setLineWidth(0.2);
+
+      // Right side
+      x = ML + halfW;
+      doc.setFont('helvetica', 'bold');
+      doc.rect(x, y, cRB, rowH);
+      doc.text((40 + i + 1) + '.', x + cRB / 2, y + rowH * 0.65, { align: 'center' });
+      x += cRB;
+
+      doc.setFont('helvetica', 'normal');
+      doc.rect(x, y, cDuz, rowH);
+      if (R) doc.text(fmtEU(R.length, 1), x + cDuz / 2, y + rowH * 0.65, { align: 'center' });
+      x += cDuz;
+
+      doc.rect(x, y, cFi, rowH);
+      if (R) doc.text(String(R.fi), x + cFi / 2, y + rowH * 0.65, { align: 'center' });
+      x += cFi;
+
+      doc.rect(x, y, cM3, rowH);
+      doc.text(R ? fmtEU(R.volume, 3) : '0,000', x + cM3 / 2, y + rowH * 0.65, { align: 'center' });
+
+      y += rowH;
+    }
+
+    // ── Subtotals (no border) ──
+    y += 3;
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(9);
+    doc.text(fmtEU(leftTotal, 3),  ML + cRB + cDuz + cFi + cM3 / 2,          y, { align: 'center' });
+    doc.text(fmtEU(rightTotal, 3), ML + halfW + cRB + cDuz + cFi + cM3 / 2,  y, { align: 'center' });
+
+    // ── Summary ──
+    y += 9;
+    const total = currentPieces.reduce((s, p) => s + p.volume, 0);
+    doc.setFontSize(11);
+    doc.text('Ukupno m3: ' + fmtEU(total, 3), ML, y);
+    y += 5.5;
+    doc.text('Broj komada: ' + currentPieces.length, ML, y);
+
+    doc.save('lista_sjecenja.pdf');
   }
 </script>
 </body>
