@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Lista Sječenja Drveta</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -807,145 +808,94 @@
     URL.revokeObjectURL(url);
   }
 
-  /* ── PDF generation (jsPDF) ─────────────────────────────────────
-     Draws the PDF programmatically — identical output on every device.
-     Layout: A4 portrait, 28mm left/right margins, 20mm top/bottom.
-     Two-column table: rows 1-40 left, 41-80 right.
+  /* ── PDF generation (html2canvas → jsPDF) ──────────────────────
+     The browser renders the hidden print-view (including all special
+     characters like ž, š, č, ć, đ), html2canvas captures it as a
+     pixel-perfect image, and jsPDF wraps it into an A4 PDF.
+     Result is identical on every device and browser.
   ─────────────────────────────────────────────────────────────── */
 
-  function generatePDF() {
+  async function generatePDF() {
     if (currentPieces.length === 0) {
       alert('Nema podataka. Molimo prvo izracunajte.'); return;
     }
 
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+    const btn = document.querySelector('.btn-print');
+    btn.textContent = 'Generiranje…';
+    btn.disabled = true;
 
-    // Page geometry
-    const ML       = 28;
-    const MT       = 20;
-    const contentW = 210 - ML * 2; // 154 mm
-    const halfW    = contentW / 2;  //  77 mm per side
+    try {
+      // Mirror the @media print styles for screen-based capture.
+      // html2canvas does not fire print media queries, so we apply them inline temporarily.
+      const tempStyle = document.createElement('style');
+      tempStyle.textContent = `
+        #print-view {
+          display: block !important; position: fixed !important;
+          left: -9999px !important; top: 0 !important;
+          width: 794px !important; padding: 76px 106px !important;
+          background: #fff !important; box-sizing: border-box !important;
+          font-family: Arial, Helvetica, sans-serif !important;
+          font-size: 11px !important; color: #000 !important;
+        }
+        #print-view .ph-company, #print-view .ph-title,
+        #print-view .ph-meta,    #print-view .ph-meta span {
+          font-size: 12px !important; font-weight: 700 !important; margin-bottom: 2px !important;
+        }
+        #print-view .print-table {
+          width: 100% !important; border-collapse: collapse !important;
+          font-size: 9.5px !important; margin-top: 8px !important; margin-bottom: 6px !important;
+        }
+        #print-view .print-table th {
+          background: #fff !important; border: 1px solid #000 !important;
+          padding: 4px 6px !important; text-align: center !important;
+          font-size: 11px !important; font-weight: 900 !important; color: #000 !important;
+        }
+        #print-view .print-table td {
+          border: 1px solid #555 !important; padding: 2px 4px !important;
+          text-align: center !important; height: 14px !important; font-size: 12px !important;
+        }
+        #print-view .print-table .divider { border-left: 2px solid #000 !important; }
+        #print-view .print-table td:first-child,
+        #print-view .print-table td.divider { font-weight: 700 !important; }
+        #print-view .print-table tr.subtotal-row td {
+          border: none !important; font-weight: 700 !important; background: #fff !important;
+        }
+        #print-view .print-summary {
+          font-size: 11px !important; margin-top: 6px !important;
+          display: flex !important; flex-direction: column !important; gap: 3px !important;
+        }
+        #print-view .print-summary span { font-weight: 700 !important; }
+      `;
+      document.head.appendChild(tempStyle);
 
-    // Column widths per side (must sum to halfW = 77)
-    const cRB  = 10;
-    const cDuz = 22;
-    const cFi  = 14;
-    const cM3  = halfW - cRB - cDuz - cFi; // 31 mm
+      // Allow styles to paint before capture
+      await new Promise(r => setTimeout(r, 150));
 
-    const rowH    = 4.5;
-    const headerH = 6;
-
-    let y = MT;
-
-    // ── Header ──
-    const datum = document.getElementById('datum').value;
-    const vrsta = document.getElementById('vrstaDrveta').value;
-    const ruko  = document.getElementById('rukovodilac').value;
-
-    doc.setFont('helvetica', 'bold');
-    doc.setFontSize(11);
-    doc.text('Euro Una d.o.o.', ML, y);             y += 5.5;
-    doc.text('DNEVNI LIST PROREZA OBLOVINE', ML, y); y += 5.5;
-    doc.text('Datum: ' + datum, ML, y);              y += 5;
-    doc.text('Vrsta drveta: ' + vrsta, ML, y);       y += 5;
-    if (ruko) { doc.text('Rukovodilac stroja: ' + ruko, ML, y); y += 5; }
-    y += 4;
-
-    // ── Table header ──
-    doc.setFontSize(9);
-    doc.setFont('helvetica', 'bold');
-    const headers = ['RB', 'Duzina', 'Ø', 'm3'];
-    const widths  = [cRB, cDuz, cFi, cM3];
-
-    [ML, ML + halfW].forEach(startX => {
-      let x = startX;
-      headers.forEach((lbl, i) => {
-        doc.rect(x, y, widths[i], headerH);
-        doc.text(lbl, x + widths[i] / 2, y + headerH * 0.65, { align: 'center' });
-        x += widths[i];
+      const printView = document.getElementById('print-view');
+      const canvas = await html2canvas(printView, {
+        scale: 2,           // 2× for sharp text on high-DPI screens
+        useCORS: true,
+        logging: false,
+        backgroundColor: '#ffffff',
+        width:  794,
+        height: printView.offsetHeight,
       });
-    });
 
-    // Thick divider between the two column groups
-    doc.setLineWidth(0.6);
-    doc.line(ML + halfW, y, ML + halfW, y + headerH);
-    doc.setLineWidth(0.2);
-    y += headerH;
+      document.head.removeChild(tempStyle);
 
-    // ── Data rows ──
-    const leftPieces  = currentPieces.slice(0, 40);
-    const rightPieces = currentPieces.slice(40, 80);
-    let leftTotal = 0, rightTotal = 0;
+      // Scale the captured image to fill an A4 PDF page
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+      doc.addImage(canvas.toDataURL('image/jpeg', 0.97), 'JPEG', 0, 0, 210, 297);
+      doc.save('lista_sjecenja.pdf');
 
-    for (let i = 0; i < 40; i++) {
-      const L = leftPieces[i]  || null;
-      const R = rightPieces[i] || null;
-      if (L) leftTotal  += L.volume;
-      if (R) rightTotal += R.volume;
-
-      // Left side
-      let x = ML;
-      doc.setFont('helvetica', 'bold');
-      doc.rect(x, y, cRB, rowH);
-      doc.text((i + 1) + '.', x + cRB / 2, y + rowH * 0.65, { align: 'center' });
-      x += cRB;
-
-      doc.setFont('helvetica', 'normal');
-      doc.rect(x, y, cDuz, rowH);
-      if (L) doc.text(fmtEU(L.length, 1), x + cDuz / 2, y + rowH * 0.65, { align: 'center' });
-      x += cDuz;
-
-      doc.rect(x, y, cFi, rowH);
-      if (L) doc.text(String(L.fi), x + cFi / 2, y + rowH * 0.65, { align: 'center' });
-      x += cFi;
-
-      doc.rect(x, y, cM3, rowH);
-      doc.text(L ? fmtEU(L.volume, 3) : '0,000', x + cM3 / 2, y + rowH * 0.65, { align: 'center' });
-
-      // Thick divider
-      doc.setLineWidth(0.6);
-      doc.line(ML + halfW, y, ML + halfW, y + rowH);
-      doc.setLineWidth(0.2);
-
-      // Right side
-      x = ML + halfW;
-      doc.setFont('helvetica', 'bold');
-      doc.rect(x, y, cRB, rowH);
-      doc.text((40 + i + 1) + '.', x + cRB / 2, y + rowH * 0.65, { align: 'center' });
-      x += cRB;
-
-      doc.setFont('helvetica', 'normal');
-      doc.rect(x, y, cDuz, rowH);
-      if (R) doc.text(fmtEU(R.length, 1), x + cDuz / 2, y + rowH * 0.65, { align: 'center' });
-      x += cDuz;
-
-      doc.rect(x, y, cFi, rowH);
-      if (R) doc.text(String(R.fi), x + cFi / 2, y + rowH * 0.65, { align: 'center' });
-      x += cFi;
-
-      doc.rect(x, y, cM3, rowH);
-      doc.text(R ? fmtEU(R.volume, 3) : '0,000', x + cM3 / 2, y + rowH * 0.65, { align: 'center' });
-
-      y += rowH;
+    } catch (err) {
+      console.error(err);
+      alert('Greška pri generiranju PDF-a.');
+    } finally {
+      btn.textContent = 'Preuzmi PDF';
+      btn.disabled = false;
     }
-
-    // ── Subtotals (no border) ──
-    y += 3;
-    doc.setFont('helvetica', 'bold');
-    doc.setFontSize(9);
-    doc.text(fmtEU(leftTotal, 3),  ML + cRB + cDuz + cFi + cM3 / 2,          y, { align: 'center' });
-    doc.text(fmtEU(rightTotal, 3), ML + halfW + cRB + cDuz + cFi + cM3 / 2,  y, { align: 'center' });
-
-    // ── Summary ──
-    y += 9;
-    const total = currentPieces.reduce((s, p) => s + p.volume, 0);
-    doc.setFontSize(11);
-    doc.text('Ukupno m3: ' + fmtEU(total, 3), ML, y);
-    y += 5.5;
-    doc.text('Broj komada: ' + currentPieces.length, ML, y);
-
-    doc.save('lista_sjecenja.pdf');
   }
 </script>
 </body>
