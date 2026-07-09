@@ -79,6 +79,37 @@
       box-shadow: 0 0 0 2px rgba(30,92,33,0.15);
     }
 
+    .date-wrap {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .date-wrap input[type="text"] {
+      cursor: pointer;
+      padding-right: 36px;
+    }
+
+    .date-wrap .cal-btn {
+      position: absolute;
+      right: 8px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 16px;
+      padding: 0;
+      line-height: 1;
+      color: #1e5c21;
+    }
+
+    .date-picker-hidden {
+      position: absolute;
+      opacity: 0;
+      pointer-events: none;
+      width: 0;
+      height: 0;
+    }
+
     .input-group.main-input input {
       border: 2px solid #1e5c21;
       font-size: 17px;
@@ -250,7 +281,11 @@
   <div class="inputs-grid-2">
     <div class="input-group">
       <label>Datum</label>
-      <input type="text" id="datum" placeholder="dd/mm/yyyy">
+      <div class="date-wrap">
+        <input type="text" id="datum" placeholder="dd/mm/yyyy" readonly onclick="openPicker()">
+        <input type="date" id="datumPicker" class="date-picker-hidden">
+        <button type="button" class="cal-btn" onclick="openPicker()">&#128197;</button>
+      </div>
     </div>
     <div class="input-group">
       <label>Vrsta drveta</label>
@@ -381,11 +416,24 @@
 
   /* ── Default today's date ────────────────────────────────────── */
   (function () {
-    const t  = new Date();
-    const mm = String(t.getMonth() + 1).padStart(2, '0');
-    const dd = String(t.getDate()).padStart(2, '0');
-    document.getElementById('datum').value = `${dd}/${mm}/${t.getFullYear()}`;
+    const t    = new Date();
+    const mm   = String(t.getMonth() + 1).padStart(2, '0');
+    const dd   = String(t.getDate()).padStart(2, '0');
+    const yyyy = t.getFullYear();
+    document.getElementById('datum').value       = `${dd}/${mm}/${yyyy}`;
+    document.getElementById('datumPicker').value = `${yyyy}-${mm}-${dd}`;
+
+    document.getElementById('datumPicker').addEventListener('change', function () {
+      const [y, m, d] = this.value.split('-');
+      document.getElementById('datum').value = `${d}/${m}/${y}`;
+    });
   })();
+
+  function openPicker() {
+    const picker = document.getElementById('datumPicker');
+    if (picker.showPicker) picker.showPicker();
+    else picker.click();
+  }
 
   /* ── Parsing ─────────────────────────────────────────────────── */
 
