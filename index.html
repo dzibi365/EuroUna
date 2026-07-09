@@ -203,7 +203,11 @@
     @media print {
       @page { size: A4 portrait; margin: 0; }
 
-      html, body { overflow-x: visible; max-width: none; }
+      html, body {
+        overflow: visible !important;
+        max-width: none !important;
+        width: auto !important;
+      }
 
       body { background: #fff; padding: 35mm 30mm; font-size: 11px; }
 
