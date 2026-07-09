@@ -15,8 +15,9 @@
       font-size: 14px;
     }
 
-    .container {
-      max-width: 920px;
+    /* ── Screen: App container ───────────────────────── */
+    #app {
+      max-width: 960px;
       margin: 0 auto;
       background: #fff;
       border-radius: 6px;
@@ -34,8 +35,26 @@
       letter-spacing: 0.5px;
     }
 
-    /* ── Inputs ─────────────────────────────────── */
+    .section-title {
+      font-size: 11px;
+      font-weight: 700;
+      color: #1e5c21;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      margin-bottom: 10px;
+      margin-top: 18px;
+      border-bottom: 1px solid #d0e8d0;
+      padding-bottom: 4px;
+    }
+
     .inputs-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px 20px;
+      margin-bottom: 6px;
+    }
+
+    .inputs-grid-2 {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
       gap: 14px 20px;
@@ -78,7 +97,7 @@
       color: #1e5c21;
     }
 
-    /* ── Buttons ─────────────────────────────────── */
+    /* ── Buttons ─────────────────────────────────────── */
     .buttons {
       display: flex;
       gap: 10px;
@@ -99,23 +118,16 @@
     .btn:hover  { opacity: 0.88; }
     .btn:active { transform: scale(0.97); }
 
-    .btn-calc    { background: #1e5c21; color: #fff; }
-    .btn-regen   { background: #4a8c4e; color: #fff; }
-    .btn-clear   { background: #c0392b; color: #fff; }
-    .btn-csv     { background: #2471a3; color: #fff; }
-    .btn-print   { background: #7d3c98; color: #fff; }
+    .btn-calc  { background: #1e5c21; color: #fff; }
+    .btn-regen { background: #4a8c4e; color: #fff; }
+    .btn-clear { background: #c0392b; color: #fff; }
+    .btn-csv   { background: #2471a3; color: #fff; }
+    .btn-print { background: #7d3c98; color: #fff; }
 
-    /* ── Table ───────────────────────────────────── */
-    .table-wrap {
-      overflow-x: auto;
-      margin-bottom: 18px;
-    }
+    /* ── Screen table ────────────────────────────────── */
+    .table-wrap { overflow-x: auto; margin-bottom: 18px; }
 
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 13.5px;
-    }
+    table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
 
     thead tr th {
       background: #1e5c21;
@@ -128,16 +140,10 @@
     }
 
     tbody tr:nth-child(even) td { background: #f4f8f4; }
-
     tbody tr:hover td { background: #e2efe3; }
+    tbody td { padding: 7px 14px; text-align: center; border-bottom: 1px solid #e8e8e8; }
 
-    tbody td {
-      padding: 7px 14px;
-      text-align: center;
-      border-bottom: 1px solid #e8e8e8;
-    }
-
-    /* ── Summary ─────────────────────────────────── */
+    /* ── Screen summary ──────────────────────────────── */
     .summary {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
@@ -149,25 +155,11 @@
     }
 
     .summary-item { text-align: center; }
-
-    .summary-item .s-label {
-      font-size: 10px;
-      text-transform: uppercase;
-      color: #666;
-      letter-spacing: 0.5px;
-      margin-bottom: 4px;
-    }
-
-    .summary-item .s-value {
-      font-size: 20px;
-      font-weight: 700;
-      color: #1e5c21;
-    }
-
+    .summary-item .s-label { font-size: 10px; text-transform: uppercase; color: #666; letter-spacing: 0.5px; margin-bottom: 4px; }
+    .summary-item .s-value { font-size: 20px; font-weight: 700; color: #1e5c21; }
     .summary-item.diff-ok  .s-value { color: #1e8c26; }
     .summary-item.diff-bad .s-value { color: #c0392b; }
 
-    /* ── Empty / error state ─────────────────────── */
     .empty-state {
       text-align: center;
       color: #999;
@@ -176,66 +168,149 @@
       font-size: 15px;
     }
 
-    /* ── Print ───────────────────────────────────── */
+    /* ── Print view (hidden on screen) ──────────────── */
+    #print-view { display: none; }
+
+    /* ══════════════════════════════════════════════════
+       PRINT STYLES — matches the physical template
+       ══════════════════════════════════════════════════ */
     @media print {
-      body { background: #fff; padding: 0; }
-      .container { box-shadow: none; padding: 10px; }
-      .buttons, .inputs-grid { display: none !important; }
-      h1 { font-size: 18px; }
-      .summary { border: 1px solid #999; }
+      @page { size: A4 portrait; margin: 12mm 10mm; }
+
+      body { background: #fff; padding: 0; font-size: 11px; }
+
+      #app        { display: none !important; }
+      #print-view { display: block !important; }
+
+      .ph-company {
+        font-size: 12px;
+        font-weight: 700;
+        margin-bottom: 1px;
+      }
+
+      .ph-title {
+        font-size: 14px;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+        margin-bottom: 6px;
+      }
+
+      .ph-meta {
+        font-size: 10px;
+        margin-bottom: 2px;
+      }
+
+      .ph-meta span { font-weight: 700; }
+
+      .print-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 9.5px;
+        margin-top: 8px;
+        margin-bottom: 6px;
+      }
+
+      .print-table th {
+        background: #fff;
+        border: 1px solid #333;
+        padding: 3px 5px;
+        text-align: center;
+        font-size: 9px;
+        font-weight: 700;
+      }
+
+      .print-table td {
+        border: 1px solid #555;
+        padding: 2px 4px;
+        text-align: center;
+        height: 14px;
+        white-space: nowrap;
+      }
+
+      .print-table .divider {
+        border-left: 2px solid #000;
+      }
+
+      .print-table tr.subtotal-row td {
+        border-top: 2px solid #000;
+        font-weight: 700;
+        background: #f0f0f0;
+      }
+
+      .print-summary {
+        font-size: 11px;
+        margin-top: 6px;
+        display: flex;
+        gap: 40px;
+      }
+
+      .print-summary span { font-weight: 700; }
     }
 
     @media (max-width: 600px) {
-      .inputs-grid { grid-template-columns: 1fr 1fr; }
+      .inputs-grid, .inputs-grid-2 { grid-template-columns: 1fr 1fr; }
       .summary { grid-template-columns: 1fr 1fr; }
     }
   </style>
 </head>
 <body>
-<div class="container" id="app">
+
+<!-- ══════════════════════════════════════════════
+     SCREEN APP
+     ══════════════════════════════════════════════ -->
+<div id="app">
   <h1>Kalkulator Liste Sječenja Drveta</h1>
 
+  <div class="section-title">Informacije o dokumentu</div>
+  <div class="inputs-grid-2">
+    <div class="input-group">
+      <label>Datum</label>
+      <input type="date" id="datum">
+    </div>
+    <div class="input-group">
+      <label>Vrsta drveta</label>
+      <input type="text" id="vrstaDrveta" placeholder="npr. Bukva" value="Bukva">
+    </div>
+    <div class="input-group">
+      <label>Rukovodilac stroja</label>
+      <input type="text" id="rukovodilac" placeholder="Ime i prezime">
+    </div>
+  </div>
+
+  <div class="section-title">Parametri izračuna</div>
   <div class="inputs-grid">
     <div class="input-group main-input">
       <label>Ciljni ukupni volumen (m³)</label>
       <input type="text" id="targetVolume" value="25,943" placeholder="npr. 25,943">
     </div>
-
     <div class="input-group">
       <label>Min dužina (m)</label>
       <input type="number" id="minLength" value="2.0" step="0.1" min="0.1">
     </div>
-
     <div class="input-group">
       <label>Max dužina (m)</label>
       <input type="number" id="maxLength" value="4.8" step="0.1" min="0.1">
     </div>
-
     <div class="input-group">
       <label>Min Fi (cm)</label>
       <input type="number" id="minFi" value="20" step="1" min="1">
     </div>
-
     <div class="input-group">
       <label>Max Fi (cm)</label>
       <input type="number" id="maxFi" value="80" step="1" min="1">
     </div>
-
     <div class="input-group">
       <label>Tolerancija (m³)</label>
       <input type="number" id="tolerance" value="0.01" step="0.001" min="0">
     </div>
-
     <div class="input-group">
       <label>Korak dužine (m)</label>
       <input type="number" id="lengthStep" value="0.1" step="0.01" min="0.01">
     </div>
-
     <div class="input-group">
       <label>Maks. komada (opcionalno)</label>
       <input type="number" id="maxPieces" placeholder="Bez ograničenja" min="1">
     </div>
-
     <div class="input-group">
       <label>Fiksno komada (opcionalno)</label>
       <input type="number" id="fixedPieces" placeholder="Automatski" min="1">
@@ -255,6 +330,40 @@
   </div>
 </div>
 
+<!-- ══════════════════════════════════════════════
+     PRINT VIEW — hidden on screen, shown on print
+     Matches the "DNEVNI LIST PROREZA OBLOVINE" template:
+       40 rows on the left column, 40 rows on the right.
+     ══════════════════════════════════════════════ -->
+<div id="print-view">
+  <div class="ph-company">Euro Una d.o.o.</div>
+  <div class="ph-title">DNEVNI LIST PROREZA OBLOVINE</div>
+  <div class="ph-meta">Datum: <span id="p-datum"></span></div>
+  <div class="ph-meta">Vrsta drveta: <span id="p-vrsta"></span></div>
+  <div class="ph-meta">Rukovodilac stroja: <span id="p-ruko"></span></div>
+
+  <table class="print-table">
+    <thead>
+      <tr>
+        <th>RB</th>
+        <th>Du&#382;ina</th>
+        <th>&#216;</th>
+        <th>m&#179;</th>
+        <th class="divider">RB</th>
+        <th>Du&#382;ina</th>
+        <th>&#216;</th>
+        <th>m&#179;</th>
+      </tr>
+    </thead>
+    <tbody id="print-tbody"></tbody>
+  </table>
+
+  <div class="print-summary">
+    <div>Ukupno m&#179;: <span id="p-total"></span></div>
+    <div>Broj komada: <span id="p-count"></span></div>
+  </div>
+</div>
+
 <script>
 /* ================================================================
    Wood Cutting List Calculator
@@ -264,123 +373,103 @@
    where L = length in metres, d = diameter in centimetres.
 
    Matching algorithm:
-     We run up to MAX_ATTEMPTS independent trials and keep the result
-     whose total volume is closest to the target.
-
+     Run MAX_ATTEMPTS random trials; keep the result closest to target.
      Each trial:
-       1. Decide how many pieces to generate.
-          – If fixedPieces is set: use exactly that count.
-          – Otherwise: estimate from (target / average-piece-vol) ±30%.
-       2. Generate (n − 1) pieces with random valid (length, fi) pairs.
-       3. Analytically find the single best last piece for the remaining
-          volume by iterating every valid fi value, computing the ideal
-          length, clamping it to [minLen, maxLen], and snapping to the
-          length step.  Pick whichever (fi, len) pair gives smallest
-          absolute error.
-       4. Record total and compare against the current best.
-       5. Stop early if we are within tolerance.
+       1. Pick piece count n (fixed or estimated from avg vol ±30%).
+       2. Generate n−1 random valid (length, fi) pieces.
+       3. Analytically solve the best last piece:
+            for each integer fi, compute L_ideal = V_remaining × 4 / (π × (fi/100)²)
+            clamp to [minLen, maxLen], snap to lenStep, record error.
+       4. Keep the trial if it beats the current best.
+       5. Stop early if within tolerance.
+
+   Print layout:
+     Matches the physical "DNEVNI LIST PROREZA OBLOVINE" template.
+     ROWS_PER_COL rows on the left (pieces 1–40) and
+     ROWS_PER_COL rows on the right (pieces 41–80).
+     Empty slots show 0,000 in the m³ cell.
    ================================================================ */
 
-  let currentPieces = [];   // last calculated result, used by export / print
+  const ROWS_PER_COL = 40;
+
+  let currentPieces = [];
+
+  /* ── Default today's date ────────────────────────────────────── */
+  (function () {
+    const t  = new Date();
+    const mm = String(t.getMonth() + 1).padStart(2, '0');
+    const dd = String(t.getDate()).padStart(2, '0');
+    document.getElementById('datum').value = `${t.getFullYear()}-${mm}-${dd}`;
+  })();
 
   /* ── Parsing ─────────────────────────────────────────────────── */
 
-  /**
-   * Accept both "25.943" (dot) and "25,943" (comma) as decimal separator.
-   * When both symbols appear, the rightmost one is the decimal separator.
-   */
   function parseEU(str) {
     if (typeof str === 'number') return str;
     str = String(str).trim();
     const dotPos   = str.lastIndexOf('.');
     const commaPos = str.lastIndexOf(',');
     if (commaPos > dotPos) {
-      // comma is decimal: strip any dots used as thousand-separators
       return parseFloat(str.replace(/\./g, '').replace(',', '.'));
     }
-    // dot is decimal (or no separator): strip any commas used as thousand-separators
     return parseFloat(str.replace(/,/g, ''));
   }
 
   /* ── Formatting ──────────────────────────────────────────────── */
 
-  /** Format with European decimal comma, fixed decimals. */
   function fmtEU(val, dec = 3) {
     return val.toFixed(dec).replace('.', ',');
   }
 
-  /* ── Core volume formula ─────────────────────────────────────── */
+  function fmtDate(iso) {
+    if (!iso) return '';
+    const [y, m, d] = iso.split('-');
+    return `${d}.${m}.${y}.`;
+  }
 
-  /**
-   * Volume of a cylindrical log.
-   * @param {number} lengthM    – length in metres
-   * @param {number} diameterCm – diameter in centimetres
-   * @returns {number} volume in m³
-   */
+  /* ── Volume formula ──────────────────────────────────────────── */
+
   function calcVol(lengthM, diameterCm) {
     return lengthM * Math.PI * Math.pow(diameterCm / 100, 2) / 4;
   }
 
   /* ── Random helpers ──────────────────────────────────────────── */
 
-  /** Random integer in [min, max] inclusive. */
   function rndInt(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
   }
 
-  /**
-   * Random value snapped to the nearest multiple of `step` within [min, max].
-   */
   function rndSnap(min, max, step) {
     const steps = Math.floor((max - min) / step + 1e-9);
     const idx   = Math.floor(Math.random() * (steps + 1));
     return Math.min(max, parseFloat((min + idx * step).toFixed(10)));
   }
 
-  /** Snap a value to the nearest multiple of step, clamped to [min, max]. */
   function snap(val, min, max, step) {
-    const snapped = Math.round((val - min) / step) * step + min;
-    return Math.min(max, Math.max(min, parseFloat(snapped.toFixed(10))));
+    const s = Math.round((val - min) / step) * step + min;
+    return Math.min(max, Math.max(min, parseFloat(s.toFixed(10))));
   }
 
   /* ── Best single-piece finder ────────────────────────────────── */
 
-  /**
-   * Find the (length, fi) combination that produces a volume closest
-   * to `targetVol`, within the supplied constraints.
-   *
-   * For each integer fi value we analytically compute the ideal length:
-   *   L_ideal = targetVol × 4 / (π × (fi/100)²)
-   * then snap it to the length grid and record the error.
-   *
-   * @returns {{ length, fi, volume }} best piece, or null if impossible.
-   */
   function findBestPiece(targetVol, minLen, maxLen, minFi, maxFi, lenStep) {
-    let best = null;
+    let best    = null;
     let bestErr = Infinity;
 
     for (let fi = minFi; fi <= maxFi; fi++) {
-      const area     = Math.PI * Math.pow(fi / 100, 2) / 4; // m² cross-section
-      const idealLen = targetVol / area;                      // ideal length for this fi
-
-      // Clamp to valid range then snap to step
+      const area     = Math.PI * Math.pow(fi / 100, 2) / 4;
+      const idealLen = targetVol / area;
       const clamped  = Math.min(maxLen, Math.max(minLen, idealLen));
       const snapped  = snap(clamped, minLen, maxLen, lenStep);
 
-      // Also check the adjacent step below and above (handles rounding edges)
-      const candidates = [
+      for (const len of [
         snapped,
         snap(snapped + lenStep, minLen, maxLen, lenStep),
         snap(snapped - lenStep, minLen, maxLen, lenStep),
-      ];
-
-      for (const len of candidates) {
+      ]) {
         const vol = calcVol(len, fi);
         const err = Math.abs(vol - targetVol);
-        if (err < bestErr) {
-          bestErr = err;
-          best    = { length: len, fi, volume: vol };
-        }
+        if (err < bestErr) { bestErr = err; best = { length: len, fi, volume: vol }; }
       }
     }
     return best;
@@ -388,15 +477,9 @@
 
   /* ── Main generation algorithm ───────────────────────────────── */
 
-  /**
-   * Run MAX_ATTEMPTS trials; return the pieces array whose total is
-   * closest to `target` (stops early if within `tolerance`).
-   */
   function generatePieces(target, minLen, maxLen, minFi, maxFi,
                            tolerance, maxPieces, fixedPieces, lenStep) {
     const MAX_ATTEMPTS = 800;
-
-    // Reference volumes for sizing estimates
     const avgVol = calcVol((minLen + maxLen) / 2, (minFi + maxFi) / 2);
 
     let best    = null;
@@ -406,39 +489,30 @@
       const pieces = [];
       let total    = 0;
 
-      // ── Decide how many pieces to target this trial ──
       let n;
       if (fixedPieces) {
         n = fixedPieces;
       } else {
         const est = Math.max(1, Math.round(target / avgVol));
-        // ±30% variance so different trials explore different counts
         n = Math.max(1, est + Math.round((Math.random() - 0.5) * est * 0.6));
         if (maxPieces) n = Math.min(n, maxPieces);
       }
 
-      // ── Generate n−1 random pieces ──
       for (let i = 0; i < n - 1; i++) {
         const len = rndSnap(minLen, maxLen, lenStep);
         const fi  = rndInt(minFi, maxFi);
         const vol = calcVol(len, fi);
-        // Skip if this would push us far over target (avoid huge overshoot)
         if (total + vol > target * 1.5) continue;
         pieces.push({ length: len, fi, volume: vol });
         total += vol;
       }
 
-      // ── Find the optimal last piece for the remaining volume ──
       const remaining = target - total;
       if (remaining > 1e-9) {
         const last = findBestPiece(remaining, minLen, maxLen, minFi, maxFi, lenStep);
-        if (last) {
-          pieces.push(last);
-          total += last.volume;
-        }
+        if (last) { pieces.push(last); total += last.volume; }
       }
 
-      // Enforce maxPieces hard limit
       if (maxPieces && pieces.length > maxPieces) continue;
       if (pieces.length === 0) continue;
 
@@ -446,10 +520,9 @@
       if (err < bestErr) {
         bestErr = err;
         best    = { pieces: pieces.slice(), total };
-        if (err <= tolerance) break;   // good enough — stop early
+        if (err <= tolerance) break;
       }
     }
-
     return best;
   }
 
@@ -466,55 +539,44 @@
     const maxPiecesV = document.getElementById('maxPieces').value;
     const fixedPcsV  = document.getElementById('fixedPieces').value;
 
-    if (isNaN(target) || target <= 0) {
-      alert('Unesite ispravan ciljni volumen (m³).'); return null;
-    }
-    if (isNaN(minLen) || isNaN(maxLen) || minLen <= 0 || minLen > maxLen) {
-      alert('Neispravne vrijednosti min/max dužine.'); return null;
-    }
-    if (isNaN(minFi) || isNaN(maxFi) || minFi <= 0 || minFi > maxFi) {
-      alert('Neispravne vrijednosti min/max Fi.'); return null;
-    }
+    if (isNaN(target) || target <= 0)
+      { alert('Unesite ispravan ciljni volumen (m³).'); return null; }
+    if (isNaN(minLen) || isNaN(maxLen) || minLen <= 0 || minLen > maxLen)
+      { alert('Neispravne vrijednosti min/max dužine.'); return null; }
+    if (isNaN(minFi) || isNaN(maxFi) || minFi <= 0 || minFi > maxFi)
+      { alert('Neispravne vrijednosti min/max Fi.'); return null; }
 
     return {
       target, minLen, maxLen, minFi, maxFi, tolerance, lenStep,
-      maxPieces:   maxPiecesV  ? parseInt(maxPiecesV, 10)  : null,
-      fixedPieces: fixedPcsV   ? parseInt(fixedPcsV, 10)   : null,
+      maxPieces:   maxPiecesV ? parseInt(maxPiecesV, 10) : null,
+      fixedPieces: fixedPcsV  ? parseInt(fixedPcsV,  10) : null,
     };
   }
 
-  /* ── Rendering ───────────────────────────────────────────────── */
+  /* ── Screen render ───────────────────────────────────────────── */
 
-  function renderResults(pieces, total, target, toleranceVal) {
-    const diff    = total - target;
-    const absDiff = Math.abs(diff);
-    const ok      = absDiff <= toleranceVal;
+  function renderScreen(pieces, total, target, toleranceVal) {
+    const diff      = total - target;
+    const ok        = Math.abs(diff) <= toleranceVal;
+    const sign      = diff >= 0 ? '+' : '';
+    const diffClass = ok ? 'diff-ok' : 'diff-bad';
 
     let rows = '';
     pieces.forEach((p, i) => {
-      rows += `
-        <tr>
-          <td>${i + 1}</td>
-          <td>${fmtEU(p.length, 1)}</td>
-          <td>${p.fi}</td>
-          <td>${fmtEU(p.volume, 3)}</td>
-        </tr>`;
+      rows += `<tr>
+        <td>${i + 1}</td>
+        <td>${fmtEU(p.length, 1)}</td>
+        <td>${p.fi}</td>
+        <td>${fmtEU(p.volume, 3)}</td>
+      </tr>`;
     });
-
-    const diffClass = ok ? 'diff-ok' : 'diff-bad';
-    const sign      = diff >= 0 ? '+' : '';
 
     document.getElementById('output').innerHTML = `
       <div class="table-wrap">
         <table>
-          <thead>
-            <tr>
-              <th>RB</th>
-              <th>Dužina (m)</th>
-              <th>Fi (cm)</th>
-              <th>m³</th>
-            </tr>
-          </thead>
+          <thead><tr>
+            <th>RB</th><th>Dužina (m)</th><th>Fi (cm)</th><th>m³</th>
+          </tr></thead>
           <tbody>${rows}</tbody>
         </table>
       </div>
@@ -538,6 +600,50 @@
       </div>`;
   }
 
+  /* ── Print view render ───────────────────────────────────────── */
+
+  function renderPrint(pieces, total) {
+    const leftPieces  = pieces.slice(0, ROWS_PER_COL);
+    const rightPieces = pieces.slice(ROWS_PER_COL, ROWS_PER_COL * 2);
+
+    let leftTotal  = 0;
+    let rightTotal = 0;
+    let rows       = '';
+
+    for (let i = 0; i < ROWS_PER_COL; i++) {
+      const L = leftPieces[i]  || null;
+      const R = rightPieces[i] || null;
+
+      if (L) leftTotal  += L.volume;
+      if (R) rightTotal += R.volume;
+
+      rows += `<tr>
+        <td>${i + 1}.</td>
+        <td>${L ? fmtEU(L.length, 1) : ''}</td>
+        <td>${L ? L.fi : ''}</td>
+        <td>${L ? fmtEU(L.volume, 3) : '0,000'}</td>
+        <td class="divider">${ROWS_PER_COL + i + 1}.</td>
+        <td>${R ? fmtEU(R.length, 1) : ''}</td>
+        <td>${R ? R.fi : ''}</td>
+        <td>${R ? fmtEU(R.volume, 3) : '0,000'}</td>
+      </tr>`;
+    }
+
+    rows += `<tr class="subtotal-row">
+      <td colspan="3"></td>
+      <td>${fmtEU(leftTotal, 3)}</td>
+      <td class="divider" colspan="3"></td>
+      <td>${fmtEU(rightTotal, 3)}</td>
+    </tr>`;
+
+    document.getElementById('print-tbody').innerHTML = rows;
+    document.getElementById('p-total').textContent  = fmtEU(total, 3);
+    document.getElementById('p-count').textContent  = pieces.length;
+    document.getElementById('p-datum').textContent  = fmtDate(document.getElementById('datum').value);
+    document.getElementById('p-vrsta').textContent  = document.getElementById('vrstaDrveta').value;
+    document.getElementById('p-ruko').textContent   = document.getElementById('rukovodilac').value;
+  }
+
   /* ── Button handlers ─────────────────────────────────────────── */
 
   function calculate() {
@@ -545,9 +651,8 @@
     if (!cfg) return;
 
     document.getElementById('output').innerHTML =
-      '<div class="empty-state">Izračunavanje…</div>';
+      '<div class="empty-state">Izračunavanje&hellip;</div>';
 
-    // Defer so the browser can paint the "Calculating…" message first
     setTimeout(() => {
       const result = generatePieces(
         cfg.target, cfg.minLen, cfg.maxLen, cfg.minFi, cfg.maxFi,
@@ -562,7 +667,8 @@
       }
 
       currentPieces = result.pieces;
-      renderResults(result.pieces, result.total, cfg.target, cfg.tolerance);
+      renderScreen(result.pieces, result.total, cfg.target, cfg.tolerance);
+      renderPrint(result.pieces, result.total);
     }, 30);
   }
 
@@ -579,20 +685,26 @@
     if (currentPieces.length === 0) {
       alert('Nema podataka za izvoz. Molimo prvo izračunajte.'); return;
     }
+
     const cfg    = getInputs();
     const target = cfg ? cfg.target : 0;
     const total  = currentPieces.reduce((s, p) => s + p.volume, 0);
     const diff   = total - target;
 
-    let csv = 'RB;Dužina (m);Fi (cm);m3\n';
+    let csv = `Euro Una d.o.o.\nDNEVNI LIST PROREZA OBLOVINE\n`;
+    csv += `Datum;${fmtDate(document.getElementById('datum').value)}\n`;
+    csv += `Vrsta drveta;${document.getElementById('vrstaDrveta').value}\n`;
+    csv += `Rukovodilac stroja;${document.getElementById('rukovodilac').value}\n\n`;
+    csv += 'RB;Duzina (m);Fi (cm);m3\n';
+
     currentPieces.forEach((p, i) => {
       csv += `${i + 1};${fmtEU(p.length, 1)};${p.fi};${fmtEU(p.volume, 3)}\n`;
     });
-    csv += `\n;;;\n`;
-    csv += `Ukupno;;;${fmtEU(total, 3)}\n`;
-    csv += `Ciljni;;;${fmtEU(target, 3)}\n`;
+
+    csv += `\nUkupno m3;;;${fmtEU(total, 3)}\n`;
+    csv += `Ciljni m3;;;${fmtEU(target, 3)}\n`;
     csv += `Razlika;;;${(diff >= 0 ? '+' : '') + fmtEU(diff, 3)}\n`;
-    csv += `Komada;;;${currentPieces.length}\n`;
+    csv += `Broj komada;;;${currentPieces.length}\n`;
 
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
     const url  = URL.createObjectURL(blob);
