@@ -46,7 +46,7 @@
 
     .inputs-grid-2 {
       display: grid;
-      grid-template-columns: repeat(2, 1fr);
+      grid-template-columns: repeat(3, 1fr);
       gap: 14px 20px;
       margin-bottom: 20px;
     }
@@ -238,9 +238,12 @@
      SCREEN APP
      ══════════════════════════════════════════════ -->
 <div id="app">
-  <input type="hidden" id="datum">
   <div class="section-title">Informacije o dokumentu</div>
   <div class="inputs-grid-2">
+    <div class="input-group">
+      <label>Datum</label>
+      <input type="date" id="datum">
+    </div>
     <div class="input-group">
       <label>Vrsta drveta</label>
       <input type="text" id="vrstaDrveta" placeholder="npr. Bukva" value="Bukva">
