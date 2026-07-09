@@ -250,7 +250,7 @@
   <div class="inputs-grid-2">
     <div class="input-group">
       <label>Datum</label>
-      <input type="date" id="datum">
+      <input type="text" id="datum" placeholder="dd/mm/yyyy">
     </div>
     <div class="input-group">
       <label>Vrsta drveta</label>
@@ -384,7 +384,7 @@
     const t  = new Date();
     const mm = String(t.getMonth() + 1).padStart(2, '0');
     const dd = String(t.getDate()).padStart(2, '0');
-    document.getElementById('datum').value = `${t.getFullYear()}-${mm}-${dd}`;
+    document.getElementById('datum').value = `${dd}/${mm}/${t.getFullYear()}`;
   })();
 
   /* ── Parsing ─────────────────────────────────────────────────── */
@@ -406,10 +406,8 @@
     return val.toFixed(dec).replace('.', ',');
   }
 
-  function fmtDate(iso) {
-    if (!iso) return '';
-    const [y, m, d] = iso.split('-');
-    return `${d}/${m}/${y}`;
+  function fmtDate(val) {
+    return val || '';
   }
 
   /* ── Volume formula ──────────────────────────────────────────── */
